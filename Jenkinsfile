@@ -45,8 +45,8 @@ pipeline {
                             // Debug token (dangerous! only for private testing)
                             echo "Git token: $GIT_TOKEN"
                             sh '''
-                                git config --global user.email "jenkins@example.com"
-                                git config --global user.name "Jenkins CI"
+                                git config --global user.email "solen0918@gmail.com"
+                                git config --global user.name "Solen-s"
                                 rm -rf helm-spring-boot-repo || true
                                 git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/Solen-s/Manifest-Spring-boot.git helm-spring-boot-repo
                                 cd helm-spring-boot-repo
