@@ -45,8 +45,8 @@ pipeline {
                                 cd helm-spring-boot-repo
                                 sed -i 's|tag:.*|tag: "${IMAGE_TAG}"|' ${HELM_VALUES_FILE}
                                 git add ${HELM_VALUES_FILE}
-                                git commit -m "Update image tag to ${IMAGE_TAG}"
-                                git push origin main
+                               git commit -m "Update image tag to ${IMAGE_TAG}" || echo "No changes to commit"
+                               git push https://${GIT_USER}:${GIT_TOKEN}@github.com/Solen-s/Manifest-Spring-boot.git main
                             """
                             echo "✅ Helm values updated and pushed successfully."
                         } catch (err) {
