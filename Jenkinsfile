@@ -39,17 +39,22 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: '15791200-bf33-4a18-8caa-d2978147a1e1', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
                     script {
                         try {
-                            sh '''
+                             // Debug username (safe)
+                            echo "Git username: $GIT_USER"
+
+                            // Debug token (dangerous! only for private testing)
+                            echo "Git token: $GIT_TOKEN"
+                            sh """
                                 git config --global user.email "jenkins@example.com"
                                 git config --global user.name "Jenkins CI"
                                 rm -rf helm-spring-boot-repo || true
-                                git clone https://$GIT_USER:$GIT_TOKEN@github.com/Solen-s/Manifest-Spring-boot.git helm-spring-boot-repo
+                                git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/Solen-s/Manifest-Spring-boot.git helm-spring-boot-repo
                                 cd helm-spring-boot-repo
                                 sed -i 's|tag:.*|tag: "'$IMAGE_TAG'"|' values.yaml
                                 git add values.yaml
                                 git commit -m "Update image tag to '$IMAGE_TAG'" || echo "No changes to commit"
                                 git push origin main
-                            '''
+                            """
                             echo "✅ Helm values updated and pushed successfully."
                         } catch (err) {
                             echo "❌ Updating Helm values failed!"
