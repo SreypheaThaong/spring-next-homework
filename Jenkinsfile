@@ -42,8 +42,6 @@ pipeline {
                              // Debug username (safe)
                             echo "Git username: $GIT_USER"
 
-                            // Debug token (dangerous! only for private testing)
-                            echo "Git token: $GIT_TOKEN"
                             sh '''
                                 git config --global user.email "solen0918@gmail.com"
                                 git config --global user.name "Solen-s"
