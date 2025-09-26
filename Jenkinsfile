@@ -3,7 +3,7 @@ pipeline {
     environment {
         REGISTRY = "solenn9/spring-boot"
         IMAGE_TAG = "${BUILD_NUMBER}"
-        HELM_REPO = "https://github.com/Solen-s/spring-boot-MiniProject.git"
+        HELM_REPO = "https://github.com/Solen-s/Manifest-Spring-boot.git"
         HELM_VALUES_FILE = "values.yaml"
     }
     stages {
