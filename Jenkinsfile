@@ -1,46 +1,69 @@
 pipeline {
-    agent any
-
+    agent { label 'Docker' }
+    environment {
+        REGISTRY = "solenn9/spring-boot"
+        IMAGE_TAG = "${BUILD_NUMBER}"
+        HELM_REPO = "https://github.com/Solen-s/spring-boot-MiniProject.git"
+        HELM_VALUES_FILE = "values.yaml"
+    }
     stages {
-     // Build image
-        stage('Test') {
-                steps {
-                    echo "Testing "
+        stage('Checkout App') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build & Push Docker Image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'fc770254-9dd1-4ad5-981f-1c0d225bf802', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    script {
+                        try {
+                            sh """
+                                echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+                                docker build -t ${REGISTRY}:${IMAGE_TAG} .
+                                docker push ${REGISTRY}:${IMAGE_TAG}
+                                docker logout
+                            """
+                            echo "✅ Docker image built and pushed successfully: ${REGISTRY}:${IMAGE_TAG}"
+                        } catch (err) {
+                            echo "❌ Docker build/push failed!"
+                            error("Stopping pipeline due to Docker error.")
+                        }
+                    }
                 }
-        }
-
-         // Build image
-        stage('Build') {
-            steps {
-                sh "docker build -t spring-app:${BUILD_NUMBER} ."
             }
         }
 
-        stage('Run Container') {
+        stage('Update Helm Values') {
             steps {
-                sh """
-                # Stop and remove old spring containers if they exist
-                docker rm -f spring-app-con postgres-container || true
-
-                # Start PostgreSQL
-                docker run -d --name postgres-container \
-                  -e POSTGRES_DB=mydb \
-                  -e POSTGRES_USER=myuser \
-                  -e POSTGRES_PASSWORD=mypassword \
-                  -p 5432:5432 \
-                  postgres:15
-
-                # Start Spring Boot (wait a bit for Postgres to be ready)
-                sleep 10
-                docker run -d --name spring-app-con \
-                  --link postgres-container:postgres \
-                  -p 9090:9090 \
-                  -e SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/mydb \
-                  -e SPRING_DATASOURCE_USERNAME=myuser \
-                  -e SPRING_DATASOURCE_PASSWORD=mypassword \
-                  spring-app:${BUILD_NUMBER}
-                """
+                withCredentials([usernamePassword(credentialsId: '5b4f9517-d24c-4293-9b8a-186b2af2c447', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+                    script {
+                        try {
+                            sh """
+                                git clone ${HELM_REPO} helm-spring-boot-repo
+                                cd helm-spring-boot-repo
+                                sed -i 's|tag:.*|tag: "${IMAGE_TAG}"|' ${HELM_VALUES_FILE}
+                                git add ${HELM_VALUES_FILE}
+                                git commit -m "Update image tag to ${IMAGE_TAG}"
+                                git push origin main
+                            """
+                            echo "✅ Helm values updated and pushed successfully."
+                        } catch (err) {
+                            echo "❌ Updating Helm values failed!"
+                            error("Stopping pipeline due to Git/Helm error.")
+                        }
+                    }
+                }
             }
+        }
+    }
+
+    post {
+        success {
+            echo "🎉 Pipeline completed successfully!"
+        }
+        failure {
+            echo "💥 Pipeline failed. Check logs above."
         }
     }
 }
