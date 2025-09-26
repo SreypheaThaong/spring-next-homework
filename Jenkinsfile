@@ -36,7 +36,7 @@ pipeline {
 
         stage('Update Helm Values') {
             steps {
-                withCredentials([usernamePassword(credentialsId: '42dd7049-264f-443d-a418-34f4d0b2ab75', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+                withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
                     script {
                         try {
                              // Debug username (safe)
