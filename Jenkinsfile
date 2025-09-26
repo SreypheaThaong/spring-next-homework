@@ -22,9 +22,8 @@ pipeline {
                             sh """
                                 echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
                                 docker build -t ${REGISTRY}:${IMAGE_TAG} .
-                                docker tag ${REGISTRY}:${IMAGE_TAG} ${REGISTRY}:latest
+                                docker tag ${REGISTRY}:${IMAGE_TAG}
                                 docker push ${REGISTRY}:${IMAGE_TAG}
-                                docker push ${REGISTRY}:latest
                                 docker logout
                             """
                             echo "✅ Docker image built and pushed successfully: ${REGISTRY}:${IMAGE_TAG}"
@@ -39,9 +38,10 @@ pipeline {
 
         stage('Update Helm Values') {
             steps {
-                withCredentials([usernamePassword(credentialsId: '5b4f9517-d24c-4293-9b8a-186b2af2c447', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+                withCredentials([usernamePassword(credentialsId: 'fc770254-9dd1-4ad5-981f-1c0d225bf802', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
                     script {
-                        sh """
+                       try{
+                         sh """
                             git config --global user.email "jenkins@example.com"
                             git config --global user.name "Jenkins CI"
                             git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/Solen-s/spring-boot-MiniProject.git helm-spring-boot-repo
@@ -53,6 +53,10 @@ pipeline {
                             git push origin main
                         """
                         echo "✅ Helm values updated and pushed successfully."
+                       }catch(err){
+                        echo "❌ Helm values update failed!"
+                        error("Stopping pipeline due to Helm update error.")
+                       }
                     }
                 }
             }
