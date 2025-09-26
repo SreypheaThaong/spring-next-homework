@@ -36,10 +36,10 @@ pipeline {
 
         stage('Update Helm Values') {
             steps {
-                withCredentials([usernamePassword(credentialsId: '032a7439-e236-4fed-92af-da04510530ae', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+                withCredentials([usernamePassword(credentialsId: '15791200-bf33-4a18-8caa-d2978147a1e1', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
                     script {
                         try {
-                            sh '''
+                            sh """
                                 rm -rf helm-spring-boot-repo || true
                                 git clone https://$GIT_USER:$GIT_TOKEN@github.com/Solen-s/Manifest-Spring-boot.git helm-spring-boot-repo
                                 cd helm-spring-boot-repo
@@ -47,7 +47,7 @@ pipeline {
                                 git add ${HELM_VALUES_FILE}
                                 git commit -m "Update image tag to ${IMAGE_TAG}" || echo "No changes to commit"
                                 git push origin main
-                            '''
+                            """
                             echo "✅ Helm values updated and pushed successfully."
                         } catch (err) {
                             echo "❌ Updating Helm values failed!"
