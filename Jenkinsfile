@@ -6,6 +6,7 @@ pipeline {
         HELM_REPO = "https://github.com/Solen-s/spring-boot-MiniProject.git"
         HELM_VALUES_FILE = "values.yaml"
     }
+
     stages {
         stage('Checkout App') {
             steps {
@@ -21,7 +22,9 @@ pipeline {
                             sh """
                                 echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
                                 docker build -t ${REGISTRY}:${IMAGE_TAG} .
+                                docker tag ${REGISTRY}:${IMAGE_TAG} ${REGISTRY}:latest
                                 docker push ${REGISTRY}:${IMAGE_TAG}
+                                docker push ${REGISTRY}:latest
                                 docker logout
                             """
                             echo "✅ Docker image built and pushed successfully: ${REGISTRY}:${IMAGE_TAG}"
@@ -38,20 +41,18 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: '5b4f9517-d24c-4293-9b8a-186b2af2c447', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
                     script {
-                        try {
-                            sh """
-                                git clone ${HELM_REPO} helm-spring-boot-repo
-                                cd helm-spring-boot-repo
-                                sed -i 's|tag:.*|tag: "${IMAGE_TAG}"|' ${HELM_VALUES_FILE}
-                                git add ${HELM_VALUES_FILE}
-                                git commit -m "Update image tag to ${IMAGE_TAG}"
-                                git push origin main
-                            """
-                            echo "✅ Helm values updated and pushed successfully."
-                        } catch (err) {
-                            echo "❌ Updating Helm values failed!"
-                            error("Stopping pipeline due to Git/Helm error.")
-                        }
+                        sh """
+                            git config --global user.email "jenkins@example.com"
+                            git config --global user.name "Jenkins CI"
+                            git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/Solen-s/spring-boot-MiniProject.git helm-spring-boot-repo
+                            cd helm-spring-boot-repo
+                            # Update image tag (Linux safe)
+                            sed -i 's|tag:.*|tag: "${IMAGE_TAG}"|' ${HELM_VALUES_FILE}
+                            git add ${HELM_VALUES_FILE}
+                            git commit -m "Update image tag to ${IMAGE_TAG}" || echo "No changes to commit"
+                            git push origin main
+                        """
+                        echo "✅ Helm values updated and pushed successfully."
                     }
                 }
             }
