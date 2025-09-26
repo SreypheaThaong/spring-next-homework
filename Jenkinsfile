@@ -39,7 +39,6 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: '15791200-bf33-4a18-8caa-d2978147a1e1', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
                     script {
                         try {
-                            script {
                             sh '''
                                 git config --global user.email "jenkins@example.com"
                                 git config --global user.name "Jenkins CI"
