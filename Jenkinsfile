@@ -40,8 +40,7 @@ pipeline {
                     script {
                         try {
                             sh """
-                                git config --global user.email "jenkins@example.com"
-                                git config --global user.name "Jenkins CI"
+                                rm -rf helm-spring-boot-repo || true
                                 git clone ${HELM_REPO} helm-spring-boot-repo
                                 cd helm-spring-boot-repo
                                 sed -i 's|tag:.*|tag: "${IMAGE_TAG}"|' ${HELM_VALUES_FILE}
