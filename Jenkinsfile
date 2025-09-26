@@ -44,7 +44,7 @@ pipeline {
 
                             // Debug token (dangerous! only for private testing)
                             echo "Git token: $GIT_TOKEN"
-                            sh """
+                            sh '''
                                 git config --global user.email "jenkins@example.com"
                                 git config --global user.name "Jenkins CI"
                                 rm -rf helm-spring-boot-repo || true
@@ -54,7 +54,7 @@ pipeline {
                                 git add values.yaml
                                 git commit -m "Update image tag to '$IMAGE_TAG'" || echo "No changes to commit"
                                 git push origin main
-                            """
+                            '''
                             echo "✅ Helm values updated and pushed successfully."
                         } catch (err) {
                             echo "❌ Updating Helm values failed!"
