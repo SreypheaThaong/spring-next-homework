@@ -41,12 +41,12 @@ pipeline {
                         try {
                             sh '''
                                 rm -rf helm-spring-boot-repo || true
-                                git clone ${HELM_REPO} helm-spring-boot-repo
+                                git clone https://$GIT_USER:$GIT_TOKEN@github.com/Solen-s/Manifest-Spring-boot.git helm-spring-boot-repo
                                 cd helm-spring-boot-repo
                                 sed -i 's|tag:.*|tag: "${IMAGE_TAG}"|' ${HELM_VALUES_FILE}
                                 git add ${HELM_VALUES_FILE}
-                               git commit -m "Update image tag to ${IMAGE_TAG}" || echo "No changes to commit"
-                               git push https://${GIT_USER}:${GIT_TOKEN}@github.com/Solen-s/Manifest-Spring-boot.git main
+                                git commit -m "Update image tag to ${IMAGE_TAG}" || echo "No changes to commit"
+                                git push origin main
                             '''
                             echo "✅ Helm values updated and pushed successfully."
                         } catch (err) {
