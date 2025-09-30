@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'linux-agent' }
+    agent { label 'Linux-agent' }
     environment {
         REGISTRY = "solenn9/spring-boot"
         IMAGE_TAG = "${BUILD_NUMBER}"
