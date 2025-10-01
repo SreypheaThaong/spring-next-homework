@@ -17,30 +17,34 @@ pipeline {
                 }
             }
         }
-
-        stage('Build & Push Docker Image') {
-            steps {
-                container('docker') {
-                    withCredentials([usernamePassword(credentialsId: 'b30738c2-998e-4b66-aaf8-462eb6e651a6', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                        script {
-                        try {
-                                sh """
-                                    echo "This is docker build stage"
-                                    echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-                                    docker build -t ${REGISTRY}:${IMAGE_TAG} .
-                                    docker push ${REGISTRY}:${IMAGE_TAG}
-                                    docker logout
-                                """
-                                echo "✅ Docker image built and pushed successfully: ${REGISTRY}:${IMAGE_TAG}"
-                            } catch (err) {
-                                echo "❌ Docker build/push failed!"
-                                error("Stopping pipeline due to Docker error.")
-                            }
-                        }
+stage('Build & Push Docker Image') {
+    steps {
+        container('kaniko') {
+            withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', 
+                                             usernameVariable: 'DOCKERHUB_USERNAME', 
+                                             passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                sh """
+                  mkdir -p /workspace/.docker
+                  cat <<EOF > /workspace/.docker/config.json
+                  {
+                    "auths": {
+                      "https://index.docker.io/v1/": {
+                        "auth": "$(echo -n $DOCKERHUB_USERNAME:$DOCKERHUB_PASSWORD | base64)"
+                      }
                     }
-                }
+                  }
+                  EOF
+
+                  /kaniko/executor \
+                    --dockerfile /workspace/Dockerfile \
+                    --context /workspace \
+                    --destination $REGISTRY:$IMAGE_TAG \
+                    --skip-tls-verify=true
+                """
             }
         }
+    }
+}
 
         stage('Update Helm Values') {
             steps {
