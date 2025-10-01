@@ -21,10 +21,11 @@ pipeline {
         stage('Build & Push Docker Image') {
             steps {
                 container('docker') {
-                    withCredentials([usernamePassword(credentialsId: 'fc770254-9dd1-4ad5-981f-1c0d225bf802', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    withCredentials([usernamePassword(credentialsId: 'b30738c2-998e-4b66-aaf8-462eb6e651a6', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
                         script {
                         try {
                                 sh """
+                                    echo "This is docker build stage"
                                     echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
                                     docker build -t ${REGISTRY}:${IMAGE_TAG} .
                                     docker push ${REGISTRY}:${IMAGE_TAG}
