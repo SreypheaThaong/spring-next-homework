@@ -32,7 +32,7 @@ pipeline {
                                     docker logout
                                 """
                                 echo "✅ Docker image built and pushed successfully: ${REGISTRY}:${IMAGE_TAG}"
-                                } catch (err) {
+                            } catch (err) {
                                 echo "❌ Docker build/push failed!"
                                 error("Stopping pipeline due to Docker error.")
                             }
