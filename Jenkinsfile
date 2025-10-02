@@ -50,22 +50,28 @@ pipeline {
         }
 
         stage('Update Helm Repo') {
-            steps {
-                script {
-                    sh """
+    steps {
+        script {
+            withCredentials([usernamePassword(credentialsId: 'github-token', 
+                                              usernameVariable: 'GIT_USER', 
+                                              passwordVariable: 'GIT_PASS')]) {
+                sh '''
                     rm -rf CD-product-service
-                    git clone https://${GITHUB_CREDENTIALS_USR}:${GITHUB_CREDENTIALS_PSW}@github.com/SreypheaThaong/CD-product-service.git
+                    git clone https://$GIT_USER:$GIT_PASS@github.com/SreypheaThaong/CD-product-service.git
                     cd CD-product-service
                     # update image tag in values.yaml
-                    sed -i 's|tag:.*|tag: "${BUILD_NUMBER}"|' values.yaml
+                    sed -i "s|tag:.*|tag: \\"${BUILD_NUMBER}\\"|" values.yaml
                     # commit & push
                     git config user.email "thaong.sreyphea17@gmail.com"
                     git config user.name "SreypheaThaong"
                     git commit -am "Update image tag to ${BUILD_NUMBER}"
                     git push origin main
-                    """
-                }
+                '''
             }
         }
+    }
+}
+
+
     }
 }
