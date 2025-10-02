@@ -4,7 +4,6 @@ pipeline {
     environment {
         // use Jenkins credentials IDs123
         DOCKER_CREDENTIALS = credentials('dockerhub-token')
-        GITHUB_CREDENTIALS = credentials('github-token')
         IMAGE = "phea12/spring-homework-image"
     }
     stages {
