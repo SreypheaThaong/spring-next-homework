@@ -1,5 +1,6 @@
 pipeline {
     agent any
+
     environment {
         // use Jenkins credentials IDs
         DOCKER_CREDENTIALS = credentials('dockerhub-token')
@@ -9,10 +10,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git(
-                    credentialsId: 'github-token', 
-                    url: 'https://github.com/SreypheaThaong/spring-next-homework'
-                )
+                checkout scm
             }
         }
 
