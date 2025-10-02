@@ -49,7 +49,7 @@ pipeline {
             }
         }
 
-                stage('Update Helm Repo') {
+        stage('Update Helm Repo') {
             steps {
                 script {
                     sh """
