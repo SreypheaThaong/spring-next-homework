@@ -51,23 +51,5 @@ pipeline {
             }
         }
 
-
-
-        // stage('Update Helm Repo') {
-        //     steps {
-        //         script {
-        //             sh """
-        //             git clone https://$GITHUB_CREDENTIALS_USR:$GITHUB_CREDENTIALS_PSW@github.com/SreypheaThaong/CD-product-service CD-product-service
-        //             cd CD-product-service
-        //             sed -i 's/tag:.*/tag: "${BUILD_NUMBER}"/' values.yaml
-        //             git config user.email "jenkins@ci.com"
-        //             git config user.name "jenkins"
-        //             git commit -am "Update image tag to ${BUILD_NUMBER}"
-        //             git push origin main
-        //             """
-        //         }
-        //     }
-        // }
-
     }
 }
