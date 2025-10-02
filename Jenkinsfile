@@ -27,7 +27,7 @@ pipeline {
                 script {
                     try {
                         // Docker login using Jenkins credential env vars
-                        if (sh(script: "echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin", returnStatus: true) == 0) {
+                        if (sh(script: 'echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin', returnStatus: true) == 0) {
                             echo "✅ Docker login successful."
 
                             if (sh(script: "docker push $IMAGE:${BUILD_NUMBER}", returnStatus: true) == 0) {
