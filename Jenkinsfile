@@ -59,8 +59,8 @@ pipeline {
                     # update image tag in values.yaml
                     sed -i 's|tag:.*|tag: "${BUILD_NUMBER}"|' values.yaml
                     # commit & push
-                    git config user.email "jenkins@ci.com"
-                    git config user.name "jenkins"
+                    git config user.email "thaong.sreyphea17@gmail.com"
+                    git config user.name "SreypheaThaong"
                     git commit -am "Update image tag to ${BUILD_NUMBER}"
                     git push origin main
                     """
